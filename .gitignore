@@ -1,4 +1,25 @@
+# Python
 .venv/
+venv/
 __pycache__/
 *.pyc
+*.pyo
+.pytest_cache/
+ 
+# Node / frontend
+node_modules/
+dist/
+build/
+ 
+# Ambiente / segredos
 .env
+.env.local
+ 
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+ 
+# spaCy (modelo baixado, não deve ir pro repo)
+*.whl
