@@ -69,7 +69,7 @@ The entire project must run at **zero infrastructure cost**, using exclusively f
 
 | Component | Free choice |
 |---|---|
-| Frontend | Lovable (free plan) |
+| Frontend | Simple HTML/CSS/JS, hand-written (no Lovable in production — see Phase 2 decision) |
 | Backend | FastAPI, self-hosted on the VPS already paid for Nexflow DX |
 | Name anonymization | spaCy (`pt_core_news_md`), local, no cost, no network call |
 | Database (if needed) | PostgreSQL on the same VPS (already provisioned) |
@@ -95,9 +95,17 @@ Add a "Privacy and cost" section to `docs/architecture.md`, documenting the Phas
 
 ---
 
-## Phase 2 — Interface (Lovable)
+## Phase 2 — Interface (updated 08/29/2026 — Lovable dropped)
 
-No change. When setting up the project in Lovable, confirm the plan used is within the free tier before proceeding.
+**Original plan (superseded):** build the interface using Lovable's free plan.
+
+**Why this was dropped:** Lovable's free tier turned out to be a per-prompt credit system (5 credits/day, capped at 30/month), not unbounded usage — insufficient for a real, ongoing project that needs iteration over time, not just an initial prototype. Free-tier projects are also public by default, with no custom domain and Lovable's own branding retained. For a system meant to run in production at a school, this doesn't hold up as genuinely "zero cost, indefinitely."
+
+**Decision:** the frontend is written directly as simple, hand-crafted HTML/CSS/JS — no app-builder platform, no per-interaction credit budget. This is built collaboratively (Claude writing the code, reviewed and deployed by the project owner), not generated through Lovable's AI.
+
+**Why this still satisfies the zero-cost principle, more robustly than the original plan:** plain HTML/CSS/JS has no usage cap, no credit system, and can be hosted for free and indefinitely — either as static files served directly by the FastAPI backend (simplest option, no separate hosting needed), or on any static-hosting free tier (GitHub Pages, Vercel, Netlify) if kept separate from the backend.
+
+**Scope for this phase:** build the incident report form (fields: student, class, date, guardian, report — same fields as originally planned in Phase 3), styled simply but with intentional visual design (not a bare unstyled form), and wired to call the backend's `POST /ocorrencias/revisar` endpoint once Phase 5 exists. Login screen (Phase 5-A) is a separate concern, added once JWT validation is defined.
 
 ---
 
@@ -155,7 +163,7 @@ POST /incidents/review
 Flow:
 
 ```text
-Lovable
+Frontend (HTML/CSS/JS form)
    ↓
 FastAPI
    ↓
@@ -365,4 +373,4 @@ The real project solves the school's problem with automatic anonymization via sp
 
 ---
 
-*Document updated on 08/29/2026, based on decisions about anonymization (local spaCy, no list), salted hash, infrastructure (GCP reserved for Part 2), process isolation on the VPS, authentication via the Login API (Phase 5-A), and institutional email delivery alongside printing (Phase 9) (São Paulo time).*
+*Document updated on 08/29/2026, based on decisions about anonymization (local spaCy, no list), salted hash, infrastructure (GCP reserved for Part 2), process isolation on the VPS, authentication via the Login API (Phase 5-A), institutional email delivery alongside printing (Phase 9), and dropping Lovable in favor of hand-written frontend (Phase 2) (São Paulo time).*
