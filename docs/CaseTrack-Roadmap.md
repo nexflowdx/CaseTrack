@@ -1,4 +1,4 @@
-# CaseTrack: Intelligent School Incident Report System — Revised Roadmap (v2)
+# Intelligent School Incident Report System — Revised Roadmap (v3)
 
 ## Premises of this revision
 
@@ -10,6 +10,8 @@ This roadmap fixes four points identified in the previous version:
 4. **Zero cost** — every tool used, from start to finish, needs a free tier sufficient for the school's real usage volume.
 
 **Update (08/26/2026):** this version incorporates additional decisions on the anonymization technique (Phase 0/Phase 5), the infrastructure choice (Phase 4/22), and process isolation on the VPS (Phase 5), defined in conversation after the first revision.
+
+**Update (08/29/2026):** this version adds two features that move Part 1 (real project) beyond its original scope: (1) authentication via the existing Login API project (Phase 5-A), reused instead of duplicated, so the approval log records a real authenticated identity instead of free text; (2) institutional email delivery of the approved incident to the school's three directors/coordinator, alongside printing rather than replacing it (Phase 9). Both decisions and their implications are detailed inline below.
 
 ---
 
@@ -180,6 +182,30 @@ Since the real version shares the same VPS as other projects (Nexflow DX, Login 
 
 ---
 
+## Phase 5-A — Authentication via the Login API (added 08/29/2026)
+
+**Decision:** the real version (Part 1) gets a login screen, reusing the existing **Login API** project instead of building or duplicating auth logic here. This was originally planned only for Part 2 (Phase 14), but reusing it now is a deliberate scope change, not scope creep by accident — it directly fixes a weakness in the Phase 6 log, where the `staff_member` field was previously free text with no real identity behind it.
+
+**Integration approach:** the two services stay separate. Login API continues to own user accounts, password hashing, and JWT issuance. This project's FastAPI backend only **validates** the JWT signature (shared `SECRET_KEY`, set via environment variable, never committed — already covered by `.gitignore`) and extracts the authenticated staff identifier from the token payload. No user table, password logic, or session storage is duplicated here.
+
+```text
+Staff logs in → Login API (email/password) → issues JWT
+        ↓
+Staff uses CaseTrack, JWT goes in the request header (Authorization: Bearer ...)
+        ↓
+CaseTrack backend validates the JWT signature using the shared SECRET_KEY
+        ↓
+If valid, extracts the staff identifier from the token
+        ↓
+That identifier is what gets written to the Phase 6 approval log — no more free-text field
+```
+
+**Open item:** confirm whether the Login API's JWT payload already embeds a staff identifier directly, or whether an extra `/me`-style call is needed to resolve it. This affects how lightweight the validation step can be.
+
+**Cost/ops impact:** zero additional cost (same VPS, same free-tier principle), but the real version now has a hard runtime dependency on a second service staying up. If Login API goes down, staff can't log in to CaseTrack either — worth noting as an operational risk, not just a technical detail.
+
+---
+
 ## Phase 6 — Review, diff, and human approval
 
 The staff member doesn't just see the final text — they see **what changed**.
@@ -237,9 +263,26 @@ No change: a warning before generating the PDF if the text exceeds the available
 
 ---
 
-## Phase 9 — Printing
+## Phase 9 — Printing and institutional email delivery (updated 08/29/2026)
 
-No change. End of the real flow, with no permanent storage of the incident content (only the Phase 6 minimal log).
+**Original design (superseded in part):** printing was the end of the flow, with no permanent storage of the incident content beyond the Phase 6 minimal log.
+
+**Update:** printing and institutional email now coexist — email does not replace printing, both happen.
+
+After approval (Phase 6), the system:
+
+1. Generates the PDF (Phase 7), as before;
+2. Prints it, as before;
+3. **Also sends the same approved PDF as an email attachment** to the school's three directors/coordinator, using the **institutional email provided by the city (prefeitura)** — not personal accounts.
+
+**Why this is treated as acceptable despite the original "no permanent storage" principle:** the three recipients are the same people who already see the student's real name on the printed form and in the Phase 6 approval screen — they are authorized recipients within the same data controller (the school), not a new third party. Sending them the same final, human-approved content via their official work email is a different channel for already-authorized access, not a new category of exposure. This is distinct from the anonymization requirement in Phase 0, which exists specifically to keep real names away from the third-party LLM provider — it does not apply to these internal, authorized recipients.
+
+**What this does change, and must be documented, not glossed over:**
+
+- The incident content now persists outside this system's control, in the recipients' institutional mailboxes, subject to whatever retention/backup policy the city's IT department applies — the project has no visibility or control over that.
+- Email must only be sent **after** human approval in Phase 6, never before — the AI-reviewed draft must never reach the directors' inboxes unreviewed.
+- SMTP credentials (host, port, auth) for the institutional email server go in environment variables (`.env`), never committed to Git — already covered by `.gitignore`.
+- Zero-cost principle holds: the institutional email is provided free by the city, so no new cost line is added to the Phase 0 table.
 
 ---
 
@@ -322,4 +365,4 @@ The real project solves the school's problem with automatic anonymization via sp
 
 ---
 
-*Document updated on 08/26/2026, based on decisions about anonymization (local spaCy, no list), salted hash, infrastructure (GCP reserved for Part 2), and process isolation on the VPS (São Paulo time).*
+*Document updated on 08/29/2026, based on decisions about anonymization (local spaCy, no list), salted hash, infrastructure (GCP reserved for Part 2), process isolation on the VPS, authentication via the Login API (Phase 5-A), and institutional email delivery alongside printing (Phase 9) (São Paulo time).*
