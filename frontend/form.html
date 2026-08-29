@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseTrack — Ficha de Ocorrência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --paper: #e9e5d8;
+    --paper-card: #f8f5ec;
+    --ink: #23303d;
+    --ink-soft: #4a5568;
+    --kraft: #b98d53;
+    --kraft-dark: #8f6a3c;
+    --stamp: #9c3b2e;
+    --line: #c7c0ae;
+    --muted: #77705f;
+    --focus: #2f5d50;
+    --danger: #9c3b2e;
+    --warn: #a9772f;
+    --radius-card: 4px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 27px,
+      rgba(35, 48, 61, 0.045) 28px
+    );
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 2.5rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .brand strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  nav.trail {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+    max-width: 640px;
+    width: 100%;
+  }
+
+  .trail-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .trail-step .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--paper-card);
+    flex-shrink: 0;
+  }
+
+  .trail-step.active .num {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper-card);
+  }
+
+  .trail-step .label {
+    font-size: 12.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .trail-step.active .label {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .trail-line {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    margin: 0 0.5rem;
+  }
+
+  main {
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+  }
+
+  .ficha {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 2.25rem 2rem 2rem;
+    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+  }
+
+  .tab {
+    position: absolute;
+    top: -18px;
+    left: 28px;
+    background: var(--kraft);
+    color: #fff9ee;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px 5px;
+    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 26px;
+    right: 30px;
+    width: 88px;
+    height: 88px;
+    border: 2px solid var(--stamp);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-9deg);
+    color: var(--stamp);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .stamp::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid var(--stamp);
+    border-radius: 50%;
+  }
+
+  header.ficha-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .school-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 0.35rem;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 500;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .ticket {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  .ticket strong {
+    display: block;
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .perforation {
+    border: none;
+    border-top: 1.5px dashed var(--line);
+    margin: 1.35rem 0 1.6rem;
+  }
+
+  .field {
+    margin-bottom: 1.35rem;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+  }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.01em;
+  }
+
+  label .req {
+    color: var(--stamp);
+    margin-left: 2px;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.6rem 0.7rem;
+    transition: border-color 0.15s ease;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #a5a08f;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.14);
+  }
+
+  textarea {
+    resize: none;
+    min-height: 130px;
+    line-height: 1.55;
+  }
+
+  .helper {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .counter-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+
+  .counter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+  }
+
+  .counter.warn { color: var(--warn); }
+  .counter.danger { color: var(--danger); }
+
+  .space-warning {
+    font-size: 12px;
+    color: var(--danger);
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .space-warning.show { display: flex; }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .status-msg {
+    font-size: 12.5px;
+    color: var(--muted);
+    flex: 1;
+  }
+
+  button.submit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff9ee;
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  button.submit:hover {
+    background: #1a2530;
+  }
+
+  button.submit:active {
+    transform: scale(0.98);
+  }
+
+  button.submit:disabled {
+    background: #a9a595;
+    cursor: not-allowed;
+  }
+
+  footer.privacy-note {
+    max-width: 640px;
+    width: 100%;
+    margin-top: 1.75rem;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    padding: 0 0.25rem;
+  }
+
+  footer.privacy-note strong {
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 640px) {
+    .field-row { grid-template-columns: 1fr; gap: 1.35rem; }
+    .ficha { padding: 2rem 1.25rem 1.5rem; }
+    h1 { font-size: 21px; }
+    .stamp { width: 68px; height: 68px; font-size: 10px; top: 20px; right: 18px; }
+    nav.trail { flex-wrap: wrap; row-gap: 8px; }
+    .trail-line { display: none; }
+    .actions { flex-direction: column; align-items: stretch; }
+    .status-msg { text-align: center; }
+  }
+
+  @media (max-width: 420px) {
+    header.ficha-head { flex-direction: column; gap: 0.6rem; }
+    .ticket { text-align: left; padding-top: 0; }
+    .stamp { width: 56px; height: 56px; font-size: 9px; top: 16px; right: 16px; }
+    body { padding: 1.75rem 0.9rem 3rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+</style>
+</head>
+<body>
+
+  <p class="brand"><strong>CaseTrack</strong> · EMEF Assad Abdala</p>
+
+  <nav class="trail" aria-label="Etapas do fluxo de ocorrência">
+    <div class="trail-step">
+      <span class="num">01</span>
+      <span class="label">Login</span>
+    </div>
+    <div class="trail-line"></div>
+    <div class="trail-step active">
+      <span class="num">02</span>
+      <span class="label">Formulário</span>
+    </div>
+    <div class="trail-line"></div>
+    <div class="trail-step">
+      <span class="num">03</span>
+      <span class="label">Revisão</span>
+    </div>
+    <div class="trail-line"></div>
+    <div class="trail-step">
+      <span class="num">04</span>
+      <span class="label">Impressão &amp; e-mail</span>
+    </div>
+  </nav>
+
+  <main>
+    <form class="ficha" id="ocorrenciaForm" novalidate>
+      <span class="tab">Ocorrência escolar</span>
+      <span class="stamp" id="statusStamp">Rascunho</span>
+
+      <header class="ficha-head">
+        <div>
+          <p class="school-name">EMEF Assad Abdala</p>
+          <h1>Ficha de ocorrência</h1>
+        </div>
+        <div class="ticket">
+          <span>Registro nº</span>
+          <strong id="ticketNumber">—</strong>
+        </div>
+      </header>
+
+      <hr class="perforation">
+
+      <div class="field">
+        <label for="estudante">Estudante<span class="req">*</span></label>
+        <input type="text" id="estudante" name="estudante" placeholder="Nome do estudante" required autocomplete="off">
+      </div>
+
+      <div class="field field-row">
+        <div>
+          <label for="turma">Turma<span class="req">*</span></label>
+          <input type="text" id="turma" name="turma" placeholder="Ex: 4B" required autocomplete="off">
+        </div>
+        <div>
+          <label for="data">Data<span class="req">*</span></label>
+          <input type="date" id="data" name="data" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="responsavel">Responsável informado</label>
+        <input type="text" id="responsavel" name="responsavel" placeholder="Nome do responsável, se aplicável" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="relato">Relato do ocorrido<span class="req">*</span></label>
+        <textarea id="relato" name="relato" placeholder="Descreva o que aconteceu, com o máximo de detalhe que conseguir. A revisão de redação acontece na próxima etapa." required></textarea>
+        <div class="counter-row">
+          <span class="space-warning" id="spaceWarning">
+            <span>⚠</span> Texto longo — pode não caber inteiro na ficha impressa (Fase 8 avalia isso antes da geração do PDF).
+          </span>
+          <span class="counter" id="charCounter">0 / 900 caracteres</span>
+        </div>
+        <p class="helper">Não se preocupe em redigir com perfeição — o texto passa por uma revisão de redação (com nomes protegidos) antes de você aprovar a versão final.</p>
+      </div>
+
+      <div class="actions">
+        <span class="status-msg" id="statusMsg"></span>
+        <button type="submit" class="submit" id="submitBtn">Enviar para revisão →</button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="privacy-note">
+    <strong>Privacidade:</strong> nomes citados no relato são protegidos automaticamente antes de qualquer envio a serviços externos de IA. Nenhum dado real do estudante sai do servidor da escola sem essa proteção.
+  </footer>
+
+<script>
+  const form = document.getElementById('ocorrenciaForm');
+  const relato = document.getElementById('relato');
+  const counter = document.getElementById('charCounter');
+  const spaceWarning = document.getElementById('spaceWarning');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusMsg = document.getElementById('statusMsg');
+  const statusStamp = document.getElementById('statusStamp');
+  const ticketNumber = document.getElementById('ticketNumber');
+
+  const CHAR_LIMIT = 900;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function generateTicketPlaceholder() {
+    const now = new Date();
+    ticketNumber.textContent =
+      now.getFullYear().toString().slice(-2) +
+      pad(now.getMonth() + 1) +
+      pad(now.getDate()) +
+      '-' +
+      pad(now.getHours()) + pad(now.getMinutes());
+  }
+  generateTicketPlaceholder();
+
+  function autoResize() {
+    relato.style.height = 'auto';
+    relato.style.height = (relato.scrollHeight) + 'px';
+  }
+
+  function updateCounter() {
+    const len = relato.value.length;
+    counter.textContent = len + ' / ' + CHAR_LIMIT + ' caracteres';
+    counter.classList.remove('warn', 'danger');
+    spaceWarning.classList.remove('show');
+
+    if (len > CHAR_LIMIT) {
+      counter.classList.add('danger');
+      spaceWarning.classList.add('show');
+    } else if (len > CHAR_LIMIT * 0.8) {
+      counter.classList.add('warn');
+    }
+  }
+
+  relato.addEventListener('input', () => {
+    autoResize();
+    updateCounter();
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!form.checkValidity()) {
+      statusMsg.textContent = 'Preencha os campos obrigatórios (marcados com *) antes de enviar.';
+      statusMsg.style.color = 'var(--danger)';
+      form.reportValidity();
+      return;
+    }
+
+    const payload = {
+      estudante: document.getElementById('estudante').value,
+      turma: document.getElementById('turma').value,
+      data: document.getElementById('data').value,
+      responsavel: document.getElementById('responsavel').value,
+      relato: relato.value
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+    statusMsg.style.color = 'var(--muted)';
+    statusMsg.textContent = 'Conectando ao backend...';
+
+    try {
+      const response = await fetch('/ocorrencias/revisar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('Resposta do servidor: ' + response.status);
+
+      const data = await response.json();
+      statusStamp.textContent = 'Em revisão';
+      statusMsg.style.color = 'var(--focus)';
+      statusMsg.textContent = 'Enviado. Redirecionando para a tela de revisão...';
+
+    } catch (err) {
+      statusMsg.style.color = 'var(--warn)';
+      statusMsg.textContent = 'Backend ainda não conectado (Fase 5) — este é o formulário funcionando de forma independente, pronto para integração.';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar para revisão →';
+    }
+  });
+
+  updateCounter();
+</script>
+
+</body>
+</html>

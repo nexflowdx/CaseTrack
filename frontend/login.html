@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseTrack — Entrar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --paper: #e9e5d8;
+    --paper-card: #f8f5ec;
+    --ink: #23303d;
+    --ink-soft: #4a5568;
+    --kraft: #b98d53;
+    --stamp: #9c3b2e;
+    --line: #c7c0ae;
+    --muted: #77705f;
+    --focus: #2f5d50;
+    --danger: #9c3b2e;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 27px,
+      rgba(35, 48, 61, 0.045) 28px
+    );
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 2.5rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .brand strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  nav.trail {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+    max-width: 420px;
+    width: 100%;
+  }
+
+  .trail-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+  }
+
+  .trail-step .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--paper-card);
+    flex-shrink: 0;
+  }
+
+  .trail-step.active .num {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper-card);
+  }
+
+  .trail-step .label {
+    font-size: 12.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .trail-step.active .label {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .trail-line {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    margin: 0 0.5rem;
+  }
+
+  main {
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+  }
+
+  .card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2.25rem 2rem 2rem;
+    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+  }
+
+  .tab {
+    position: absolute;
+    top: -18px;
+    left: 28px;
+    background: var(--kraft);
+    color: #fff9ee;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px 5px;
+    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .school-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 0.35rem;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 1.6rem;
+    color: var(--ink);
+  }
+
+  .field {
+    margin-bottom: 1.3rem;
+  }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+  }
+
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.65rem 0.75rem;
+    transition: border-color 0.15s ease;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.14);
+  }
+
+  .error-msg {
+    font-size: 12.5px;
+    color: var(--danger);
+    margin-top: 0.6rem;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  button.submit {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #fff9ee;
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  button.submit:hover { background: #1a2530; }
+  button.submit:active { transform: scale(0.98); }
+  button.submit:disabled { background: #a9a595; cursor: not-allowed; }
+
+  footer.privacy-note {
+    max-width: 400px;
+    width: 100%;
+    margin-top: 1.75rem;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    text-align: center;
+    padding: 0 0.5rem;
+  }
+
+  @media (max-width: 420px) {
+    .card { padding: 2rem 1.5rem 1.5rem; }
+    body { padding: 1.75rem 0.9rem 3rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+</style>
+</head>
+<body>
+
+  <p class="brand"><strong>CaseTrack</strong> · EMEF Assad Abdala</p>
+
+  <nav class="trail" aria-label="Etapas do fluxo de ocorrência">
+    <div class="trail-step active">
+      <span class="num">01</span>
+      <span class="label">Login</span>
+    </div>
+    <div class="trail-line"></div>
+    <div class="trail-step">
+      <span class="num">02</span>
+      <span class="label">Formulário</span>
+    </div>
+    <div class="trail-line"></div>
+    <div class="trail-step">
+      <span class="num">03</span>
+      <span class="label">Revisão</span>
+    </div>
+    <div class="trail-line"></div>
+    <div class="trail-step">
+      <span class="num">04</span>
+      <span class="label">Impressão &amp; e-mail</span>
+    </div>
+  </nav>
+
+  <main>
+    <form class="card" id="loginForm" novalidate>
+      <span class="tab">Acesso</span>
+      <p class="school-name">EMEF Assad Abdala</p>
+      <h1>Entrar no CaseTrack</h1>
+
+      <div class="field">
+        <label for="email">E-mail institucional</label>
+        <input type="email" id="email" name="email" placeholder="seu.nome@prefeitura.gov.br" required autocomplete="username">
+      </div>
+
+      <div class="field">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+
+      <p class="error-msg" id="errorMsg"></p>
+
+      <button type="submit" class="submit" id="submitBtn">Entrar</button>
+    </form>
+  </main>
+
+  <footer class="privacy-note">
+    O acesso é validado pelo sistema de autenticação já usado no seu trabalho (Login API). Suas credenciais não são armazenadas neste sistema.
+  </footer>
+
+<script>
+
+  const API_BASE_URL = 'https://api-login.nexflowdx.cloud';
+  const LOGIN_ENDPOINT = API_BASE_URL + '/login';
+  const ME_ENDPOINT = API_BASE_URL + '/me';
+
+  const form = document.getElementById('loginForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const errorMsg = document.getElementById('errorMsg');
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.classList.add('show');
+  }
+
+  function clearError() {
+    errorMsg.classList.remove('show');
+    errorMsg.textContent = '';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearError();
+
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+
+    if (!email || !senha) {
+      showError('Preencha e-mail e senha.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Entrando...';
+
+    try {
+      const response = await fetch(LOGIN_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, senha: senha })
+      });
+
+      if (!response.ok) {
+        throw new Error(response.status === 401 ? 'E-mail ou senha incorretos.' : 'Erro ao conectar (' + response.status + ').');
+      }
+
+      const data = await response.json();
+
+      if (!data.token) {
+        throw new Error('Resposta do servidor não trouxe token de acesso.');
+      }
+
+      sessionStorage.setItem('casetrack_token', data.token);
+      sessionStorage.setItem('casetrack_staff_name', data.nome || email);
+
+      window.location.href = 'formulario.html';
+
+    } catch (err) {
+      if (err.message.startsWith('Failed to fetch')) {
+        showError('Login API ainda não conectado (Fase 5-A) — ajuste LOGIN_API_URL no código quando o serviço estiver disponível.');
+      } else {
+        showError(err.message);
+      }
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Entrar';
+    }
+  });
+
+</script>
+
+</body>
+</html>
