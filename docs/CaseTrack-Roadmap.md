@@ -105,7 +105,17 @@ Add a "Privacy and cost" section to `docs/architecture.md`, documenting the Phas
 
 **Why this still satisfies the zero-cost principle, more robustly than the original plan:** plain HTML/CSS/JS has no usage cap, no credit system, and can be hosted for free and indefinitely — either as static files served directly by the FastAPI backend (simplest option, no separate hosting needed), or on any static-hosting free tier (GitHub Pages, Vercel, Netlify) if kept separate from the backend.
 
-**Scope for this phase:** build the incident report form (fields: student, class, date, guardian, report — same fields as originally planned in Phase 3), styled simply but with intentional visual design (not a bare unstyled form), and wired to call the backend's `POST /ocorrencias/revisar` endpoint once Phase 5 exists. Login screen (Phase 5-A) is a separate concern, added once JWT validation is defined.
+**Scope for this phase:** build the incident report form (fields: student, class, date, guardian, report — same fields as originally planned in Phase 3), styled simply but with intentional visual design (not a bare unstyled form), and wired to call the backend's `POST /incidents/review` endpoint once Phase 5 exists. Login screen (Phase 5-A) is a separate concern, added once JWT validation is defined.
+
+---
+
+## Naming convention (added 09/01/2026)
+
+**Decision:** file names, code identifiers (variables, function names), and API routes are written in **English**, regardless of the fact that the rest of this document and the codebase's user-facing text are in Portuguese/English mixed. **Any text visible to the school staff member** (form labels, buttons, error messages, page titles) stays in **Portuguese**, since that's the actual user's language.
+
+**Why split it this way:** the audience for code identifiers (future developers, including the project owner months from now) is different from the audience for on-screen text (school staff who speak Portuguese, not English). Mixing conventions inconsistently — e.g., a file named `formulario.html` calling an endpoint named `/ocorrencias/revisar` while the roadmap describes it as `/incidents/review` — creates confusion when cross-referencing documentation against actual code, which is exactly what happened once in this project (documentation said `/incidents/review`, the actual form called `/ocorrencias/revisar`, until caught and fixed).
+
+**Applies to:** file names (`form.html`, not `formulario.html`), API routes (`/incidents/review`, not `/ocorrencias/revisar`), Python function/variable names, and JSON field names sent between frontend and backend. **Does not apply to:** any text a staff member reads or types on screen.
 
 ---
 

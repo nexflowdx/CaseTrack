@@ -550,7 +550,7 @@
     statusMsg.textContent = 'Conectando ao backend...';
 
     try {
-      const response = await fetch('/ocorrencias/revisar', {
+      const response = await fetch('/incidents/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -326,31 +326,41 @@
     submitBtn.disabled = true;
     submitBtn.textContent = 'Entrando...';
 
-    try {
-      const response = await fetch(LOGIN_API_URL, {
+        try {
+      const loginResponse = await fetch(LOGIN_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, senha: senha })
       });
 
-      if (!response.ok) {
-        throw new Error(response.status === 401 ? 'E-mail ou senha incorretos.' : 'Erro ao conectar (' + response.status + ').');
+      if (!loginResponse.ok) {
+        throw new Error(loginResponse.status === 401 ? 'E-mail ou senha incorretos.' : 'Erro ao conectar (' + loginResponse.status + ').');
       }
 
-      const data = await response.json();
+      const loginData = await loginResponse.json();
 
-      if (!data.token) {
+      if (!loginData.access_token) {
         throw new Error('Resposta do servidor não trouxe token de acesso.');
       }
 
-      sessionStorage.setItem('casetrack_token', data.token);
-      sessionStorage.setItem('casetrack_staff_name', data.nome || email);
+      const meResponse = await fetch(ME_ENDPOINT, {
+        headers: { 'Authorization': 'Bearer ' + loginData.access_token }
+      });
 
-      window.location.href = 'formulario.html';
+      if (!meResponse.ok) {
+        throw new Error('Login funcionou, mas não foi possível confirmar os dados do usuário.');
+      }
+
+      const meData = await meResponse.json();
+
+      sessionStorage.setItem('casetrack_token', loginData.access_token);
+      sessionStorage.setItem('casetrack_staff_name', meData.nome || email);
+
+      window.location.href = 'form.html';
 
     } catch (err) {
       if (err.message.startsWith('Failed to fetch')) {
-        showError('Login API ainda não conectado (Fase 5-A) — ajuste LOGIN_API_URL no código quando o serviço estiver disponível.');
+        showError('Não foi possível conectar ao servidor de login. Isso pode ser um bloqueio de CORS ou o serviço estar fora do ar — veja o Console do navegador (F12) para detalhes técnicos.');
       } else {
         showError(err.message);
       }
