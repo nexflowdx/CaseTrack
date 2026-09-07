@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseTrack — Ocorrência Aprovada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --paper: #e9e5d8;
+    --paper-card: #f8f5ec;
+    --ink: #23303d;
+    --ink-soft: #4a5568;
+    --kraft: #b98d53;
+    --stamp: #2f5d50;
+    --line: #c7c0ae;
+    --muted: #77705f;
+    --focus: #2f5d50;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom, transparent, transparent 27px, rgba(35, 48, 61, 0.045) 28px
+    );
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 2.5rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .brand strong { color: var(--ink); font-weight: 600; }
+
+  nav.trail {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+    max-width: 640px;
+    width: 100%;
+  }
+
+  .trail-step { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+
+  .trail-step .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--paper-card);
+    flex-shrink: 0;
+  }
+
+  .trail-step.active .num { background: var(--ink); border-color: var(--ink); color: var(--paper-card); }
+  .trail-step .label { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .trail-step.active .label { color: var(--ink); font-weight: 500; }
+  .trail-line { flex: 1; height: 1px; background: var(--line); margin: 0 0.5rem; }
+
+  main { width: 100%; max-width: 500px; position: relative; }
+
+  .card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2.5rem 2rem 2rem;
+    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+    text-align: center;
+  }
+
+  .tab {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--kraft);
+    color: #fff9ee;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px 5px;
+    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+    border-radius: 2px 2px 0 0;
+    white-space: nowrap;
+  }
+
+  .check-stamp {
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--stamp);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    color: var(--stamp);
+    font-size: 28px;
+  }
+
+  h1 { font-family: 'Fraunces', serif; font-size: 24px; font-weight: 500; margin: 0 0 0.5rem; color: var(--ink); }
+
+  .ticket-display {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    margin: 1.25rem 0;
+  }
+
+  .ticket-display strong {
+    display: block;
+    font-size: 20px;
+    color: var(--ink);
+    font-weight: 500;
+    margin-top: 0.3rem;
+    letter-spacing: 0.02em;
+  }
+
+  .next-step-note {
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.9rem 1rem;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    text-align: left;
+    margin-top: 1.5rem;
+  }
+
+  .next-step-note strong { color: var(--ink); }
+
+  button.submit {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #fff9ee;
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  button.submit:hover { background: #1a2530; }
+  button.submit:active { transform: scale(0.98); }
+
+  @media (max-width: 420px) {
+    .card { padding: 2.25rem 1.5rem 1.5rem; }
+    body { padding: 1.75rem 0.9rem 3rem; }
+    nav.trail { flex-wrap: wrap; row-gap: 8px; }
+    .trail-line { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+</style>
+</head>
+<body>
+
+  <p class="brand"><strong>CaseTrack</strong> · EMEF Assad Abdala</p>
+
+  <nav class="trail" aria-label="Etapas do fluxo de ocorrência">
+    <div class="trail-step"><span class="num">01</span><span class="label">Login</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step"><span class="num">02</span><span class="label">Formulário</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step"><span class="num">03</span><span class="label">Revisão</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step active"><span class="num">04</span><span class="label">Impressão &amp; e-mail</span></div>
+  </nav>
+
+  <main>
+    <div class="card">
+      <span class="tab">Aprovada</span>
+      <div class="check-stamp">✓</div>
+      <h1>Ocorrência aprovada</h1>
+      <p style="color: var(--ink-soft); font-size: 13.5px; margin: 0;">O registro foi confirmado com sucesso.</p>
+
+      <div class="ticket-display">
+        <span>Registro nº</span>
+        <strong id="ticketDisplay">—</strong>
+      </div>
+
+      <div class="next-step-note">
+        <strong>Próximo passo (em construção):</strong> a geração automática da ficha em PDF A4 para impressão ainda está sendo desenvolvida. Por enquanto, anote o número de registro acima para referência.
+      </div>
+
+      <button type="button" class="submit" id="newOccurrenceBtn">Registrar nova ocorrência</button>
+    </div>
+  </main>
+
+<script>
+  const token = sessionStorage.getItem('casetrack_token');
+  if (!token) {
+    window.location.href = 'login.html';
+    throw new Error('Sem token — redirecionando.');
+  }
+
+  const raw = sessionStorage.getItem('casetrack_approval');
+  if (!raw) {
+    window.location.href = 'form.html';
+    throw new Error('Nada aprovado nesta sessão — redirecionando.');
+  }
+
+  let approval;
+  try {
+    approval = JSON.parse(raw);
+  } catch (err) {
+    sessionStorage.removeItem('casetrack_approval');
+    window.location.href = 'form.html';
+    throw err;
+  }
+
+  document.getElementById('ticketDisplay').textContent = approval.ticket || '—';
+
+  document.getElementById('newOccurrenceBtn').addEventListener('click', () => {
+    sessionStorage.removeItem('casetrack_approval');
+    window.location.href = 'form.html';
+  });
+</script>
+
+</body>
+</html>

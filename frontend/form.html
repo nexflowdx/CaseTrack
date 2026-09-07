@@ -214,6 +214,12 @@
     font-weight: 500;
   }
 
+  .reviewer-line {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: -0.5rem 0 0;
+  }
+
   .perforation {
     border: none;
     border-top: 1.5px dashed var(--line);
@@ -430,6 +436,7 @@
           <strong id="ticketNumber">—</strong>
         </div>
       </header>
+      <p class="reviewer-line" id="reviewerLine"></p>
 
       <hr class="perforation">
 
@@ -478,6 +485,18 @@
   </footer>
 
 <script>
+  // URL base do backend do CaseTrack (produção). Ajustar aqui caso o domínio mude.
+  const API_BASE_URL = 'https://nexflow-casetrack-backend.tlwieg.easypanel.host';
+
+  // Guarda de autenticação: sem token, não há como o /incidents/review aceitar a requisição.
+  const authToken = sessionStorage.getItem('casetrack_token');
+  if (!authToken) {
+    window.location.href = 'login.html';
+    throw new Error('Sem token — redirecionando para login.');
+  }
+
+  const staffName = sessionStorage.getItem('casetrack_staff_name');
+
   const form = document.getElementById('ocorrenciaForm');
   const relato = document.getElementById('relato');
   const counter = document.getElementById('charCounter');
@@ -486,21 +505,24 @@
   const statusMsg = document.getElementById('statusMsg');
   const statusStamp = document.getElementById('statusStamp');
   const ticketNumber = document.getElementById('ticketNumber');
+  const reviewerLine = document.getElementById('reviewerLine');
 
   const CHAR_LIMIT = 900;
+
+  reviewerLine.textContent = staffName ? ('Registrando como ' + staffName) : '';
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
   function generateTicketPlaceholder() {
     const now = new Date();
-    ticketNumber.textContent =
-      now.getFullYear().toString().slice(-2) +
+    return now.getFullYear().toString().slice(-2) +
       pad(now.getMonth() + 1) +
       pad(now.getDate()) +
       '-' +
       pad(now.getHours()) + pad(now.getMinutes());
   }
-  generateTicketPlaceholder();
+  const currentTicket = generateTicketPlaceholder();
+  ticketNumber.textContent = currentTicket;
 
   function autoResize() {
     relato.style.height = 'auto';
@@ -536,12 +558,18 @@
       return;
     }
 
+    const estudante = document.getElementById('estudante').value;
+    const turma = document.getElementById('turma').value;
+    const dataOcorrencia = document.getElementById('data').value;
+    const responsavel = document.getElementById('responsavel').value;
+    const relatoTexto = relato.value;
+
     const payload = {
-      estudante: document.getElementById('estudante').value,
-      turma: document.getElementById('turma').value,
-      data: document.getElementById('data').value,
-      responsavel: document.getElementById('responsavel').value,
-      relato: relato.value
+      estudante: estudante,
+      turma: turma,
+      data: dataOcorrencia,
+      responsavel: responsavel,
+      relato: relatoTexto
     };
 
     submitBtn.disabled = true;
@@ -550,23 +578,51 @@
     statusMsg.textContent = 'Conectando ao backend...';
 
     try {
-      const response = await fetch('/incidents/review', {
+      const response = await fetch(API_BASE_URL + '/incidents/review', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + authToken
+        },
         body: JSON.stringify(payload)
       });
 
+      if (response.status === 401) {
+        // Token expirado ou inválido — volta para login em vez de travar aqui.
+        sessionStorage.removeItem('casetrack_token');
+        sessionStorage.removeItem('casetrack_staff_name');
+        window.location.href = 'login.html';
+        return;
+      }
+
       if (!response.ok) throw new Error('Resposta do servidor: ' + response.status);
 
-      const data = await response.json();
+      const responseData = await response.json();
+
+      // Guarda tudo que a tela de revisão precisa: dados originais do formulário
+      // (para o diff e para reenviar em /incidents/approve) + resposta da IA.
+      const reviewPayload = {
+        ticket: currentTicket,
+        estudante: estudante,
+        turma: turma,
+        data: dataOcorrencia,
+        responsavel: responsavel,
+        original: relatoTexto,
+        revised: responseData.revised_text,
+        has_unresolved_reference: responseData.has_unresolved_reference,
+        warning: responseData.warning
+      };
+      sessionStorage.setItem('casetrack_review', JSON.stringify(reviewPayload));
+
       statusStamp.textContent = 'Em revisão';
       statusMsg.style.color = 'var(--focus)';
       statusMsg.textContent = 'Enviado. Redirecionando para a tela de revisão...';
 
+      window.location.href = 'review.html';
+
     } catch (err) {
       statusMsg.style.color = 'var(--warn)';
-      statusMsg.textContent = 'Backend ainda não conectado (Fase 5) — este é o formulário funcionando de forma independente, pronto para integração.';
-    } finally {
+      statusMsg.textContent = 'Não foi possível concluir o envio: ' + err.message;
       submitBtn.disabled = false;
       submitBtn.textContent = 'Enviar para revisão →';
     }

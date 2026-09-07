@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseTrack — Revisão da Ocorrência</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --paper: #e9e5d8;
+    --paper-card: #f8f5ec;
+    --ink: #23303d;
+    --ink-soft: #4a5568;
+    --kraft: #b98d53;
+    --kraft-dark: #8f6a3c;
+    --stamp: #9c3b2e;
+    --line: #c7c0ae;
+    --muted: #77705f;
+    --focus: #2f5d50;
+    --danger: #9c3b2e;
+    --warn: #a9772f;
+    --radius-card: 4px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 27px,
+      rgba(35, 48, 61, 0.045) 28px
+    );
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 2.5rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .brand strong { color: var(--ink); font-weight: 600; }
+
+  nav.trail {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+    max-width: 640px;
+    width: 100%;
+  }
+
+  .trail-step { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+
+  .trail-step .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--paper-card);
+    flex-shrink: 0;
+  }
+
+  .trail-step.active .num {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper-card);
+  }
+
+  .trail-step .label { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .trail-step.active .label { color: var(--ink); font-weight: 500; }
+
+  .trail-line { flex: 1; height: 1px; background: var(--line); margin: 0 0.5rem; }
+
+  main { width: 100%; max-width: 640px; position: relative; }
+
+  .ficha {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    padding: 2.25rem 2rem 2rem;
+    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+  }
+
+  .tab {
+    position: absolute;
+    top: -18px;
+    left: 28px;
+    background: var(--kraft);
+    color: #fff9ee;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px 5px;
+    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .stamp {
+    position: absolute;
+    top: 26px;
+    right: 30px;
+    width: 88px;
+    height: 88px;
+    border: 2px solid var(--stamp);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-9deg);
+    color: var(--stamp);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    opacity: 0.55;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .stamp::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px solid var(--stamp);
+    border-radius: 50%;
+  }
+
+  header.ficha-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .school-name {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 0.35rem;
+  }
+
+  h1 { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 500; margin: 0; color: var(--ink); }
+
+  .ticket {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+    padding-top: 4px;
+  }
+
+  .ticket strong { display: block; font-size: 15px; color: var(--ink); font-weight: 500; }
+
+  .reviewer-line {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: -0.5rem 0 0;
+  }
+
+  .perforation { border: none; border-top: 1.5px dashed var(--line); margin: 1.35rem 0 1.6rem; }
+
+  .field { margin-bottom: 1.35rem; }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.01em;
+  }
+
+  label .req { color: var(--stamp); margin-left: 2px; }
+
+  .diff-box {
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.9rem 1rem;
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .diff-added {
+    color: var(--focus);
+    background: rgba(47, 93, 80, 0.1);
+    text-decoration: underline;
+    text-decoration-color: rgba(47, 93, 80, 0.5);
+    border-radius: 2px;
+  }
+
+  .diff-removed {
+    color: var(--danger);
+    background: rgba(156, 59, 46, 0.08);
+    text-decoration: line-through;
+    border-radius: 2px;
+  }
+
+  .legend { font-size: 12px; color: var(--muted); margin-top: 0.5rem; line-height: 1.6; }
+
+  textarea {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.6rem 0.7rem;
+    transition: border-color 0.15s ease;
+    resize: vertical;
+    min-height: 160px;
+    line-height: 1.55;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.14);
+  }
+
+  .counter-row { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
+
+  .counter { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: var(--muted); }
+
+  .alert-box {
+    display: none;
+    background: rgba(156, 59, 46, 0.08);
+    border: 1px solid var(--danger);
+    border-radius: 3px;
+    padding: 0.85rem 1rem;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.55;
+    margin-bottom: 1.35rem;
+  }
+
+  .alert-box.show { display: block; }
+
+  .alert-box code {
+    font-family: 'IBM Plex Mono', monospace;
+    background: rgba(35, 48, 61, 0.08);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 12px;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .status-msg { font-size: 12.5px; color: var(--muted); flex: 1; }
+
+  button.submit {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff9ee;
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  button.submit:hover:not(:disabled) { background: #1a2530; }
+  button.submit:active:not(:disabled) { transform: scale(0.98); }
+  button.submit:disabled { background: #a9a595; cursor: not-allowed; }
+
+  .restart-link {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-size: 12.5px;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  footer.privacy-note {
+    max-width: 640px;
+    width: 100%;
+    margin-top: 1.75rem;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    padding: 0 0.25rem;
+  }
+
+  @media (max-width: 640px) {
+    .ficha { padding: 2rem 1.25rem 1.5rem; }
+    h1 { font-size: 21px; }
+    .stamp { width: 68px; height: 68px; font-size: 9.5px; top: 20px; right: 18px; }
+    nav.trail { flex-wrap: wrap; row-gap: 8px; }
+    .trail-line { display: none; }
+    .actions { flex-direction: column; align-items: stretch; }
+    .status-msg { text-align: center; }
+  }
+
+  @media (max-width: 420px) {
+    header.ficha-head { flex-direction: column; gap: 0.6rem; }
+    .ticket { text-align: left; padding-top: 0; }
+    .stamp { width: 56px; height: 56px; font-size: 8.5px; top: 16px; right: 16px; }
+    body { padding: 1.75rem 0.9rem 3rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+</style>
+</head>
+<body>
+
+  <p class="brand"><strong>CaseTrack</strong> · EMEF Assad Abdala</p>
+
+  <nav class="trail" aria-label="Etapas do fluxo de ocorrência">
+    <div class="trail-step"><span class="num">01</span><span class="label">Login</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step"><span class="num">02</span><span class="label">Formulário</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step active"><span class="num">03</span><span class="label">Revisão</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step"><span class="num">04</span><span class="label">Impressão &amp; e-mail</span></div>
+  </nav>
+
+  <main>
+    <div class="ficha">
+      <span class="tab">Revisão da ocorrência</span>
+      <span class="stamp" id="statusStamp">Em revisão</span>
+
+      <header class="ficha-head">
+        <div>
+          <p class="school-name">EMEF Assad Abdala</p>
+          <h1>Revisar antes de aprovar</h1>
+        </div>
+        <div class="ticket">
+          <span>Registro nº</span>
+          <strong id="ticketNumber">—</strong>
+        </div>
+      </header>
+      <p class="reviewer-line" id="reviewerLine"></p>
+
+      <hr class="perforation">
+
+      <div class="alert-box" id="unresolvedAlert">
+        <strong>Atenção:</strong> a revisão da IA gerou uma referência que não foi possível resolver automaticamente. Localize as marcações <code>[[REVISAR: ...]]</code> no texto abaixo, corrija manualmente com a informação correta e remova a marcação. A aprovação fica bloqueada até isso ser feito.
+      </div>
+
+      <div class="field">
+        <label>Comparação — relato original × revisão da IA</label>
+        <div class="diff-box" id="diffBox"></div>
+        <p class="legend">
+          <span class="diff-removed">texto riscado</span> foi removido · <span class="diff-added">texto sublinhado</span> foi adicionado pela revisão.
+        </p>
+      </div>
+
+      <div class="field">
+        <label for="textoFinal">Texto final da ocorrência<span class="req">*</span></label>
+        <textarea id="textoFinal" required></textarea>
+        <div class="counter-row">
+          <span class="counter" id="charCounterReview">0 caracteres</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <span class="status-msg" id="statusMsg"></span>
+        <button type="button" class="submit" id="approveBtn" disabled>Aprovar e continuar →</button>
+      </div>
+
+      <a class="restart-link" id="restartLink">Descartar e voltar ao formulário</a>
+    </div>
+  </main>
+
+  <footer class="privacy-note">
+    <strong>Privacidade:</strong> o texto acima já contém nomes reais restaurados após a revisão da IA. Ele existe apenas nesta sessão do seu navegador — feche a aba após concluir para não deixar dados sensíveis abertos em um computador compartilhado.
+  </footer>
+
+<script>
+  // URL base do backend do CaseTrack (produção). Ajustar aqui caso o domínio mude.
+  const API_BASE_URL = 'https://nexflow-casetrack-backend.tlwieg.easypanel.host';
+
+  const token = sessionStorage.getItem('casetrack_token');
+  if (!token) {
+    window.location.href = 'login.html';
+    throw new Error('Sem token — redirecionando.');
+  }
+
+  const raw = sessionStorage.getItem('casetrack_review');
+  if (!raw) {
+    window.location.href = 'form.html';
+    throw new Error('Nada para revisar — redirecionando.');
+  }
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    sessionStorage.removeItem('casetrack_review');
+    window.location.href = 'form.html';
+    throw err;
+  }
+
+  const staffName = sessionStorage.getItem('casetrack_staff_name');
+
+  const ticketNumber = document.getElementById('ticketNumber');
+  const reviewerLine = document.getElementById('reviewerLine');
+  const statusStamp = document.getElementById('statusStamp');
+  const unresolvedAlert = document.getElementById('unresolvedAlert');
+  const diffBox = document.getElementById('diffBox');
+  const textoFinal = document.getElementById('textoFinal');
+  const charCounterReview = document.getElementById('charCounterReview');
+  const approveBtn = document.getElementById('approveBtn');
+  const statusMsg = document.getElementById('statusMsg');
+  const restartLink = document.getElementById('restartLink');
+
+  ticketNumber.textContent = data.ticket || '—';
+  reviewerLine.textContent = staffName ? ('Revisando como ' + staffName) : '';
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Diff por palavras (LCS clássico). Preserva espaços como tokens separados.
+  function diffWords(oldText, newText) {
+    const oldTokens = (oldText || '').split(/(\s+)/);
+    const newTokens = (newText || '').split(/(\s+)/);
+    const m = oldTokens.length, n = newTokens.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+    for (let i = m - 1; i >= 0; i--) {
+      for (let j = n - 1; j >= 0; j--) {
+        if (oldTokens[i] === newTokens[j]) dp[i][j] = dp[i + 1][j + 1] + 1;
+        else dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+
+    const ops = [];
+    let i = 0, j = 0;
+    while (i < m && j < n) {
+      if (oldTokens[i] === newTokens[j]) {
+        ops.push({ type: 'equal', text: oldTokens[i] });
+        i++; j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        ops.push({ type: 'remove', text: oldTokens[i] });
+        i++;
+      } else {
+        ops.push({ type: 'add', text: newTokens[j] });
+        j++;
+      }
+    }
+    while (i < m) { ops.push({ type: 'remove', text: oldTokens[i] }); i++; }
+    while (j < n) { ops.push({ type: 'add', text: newTokens[j] }); j++; }
+    return ops;
+  }
+
+  function renderDiff(oldText, newText) {
+    const ops = diffWords(oldText, newText);
+    let html = '';
+    for (const op of ops) {
+      const safe = escapeHtml(op.text);
+      if (op.type === 'equal') html += safe;
+      else if (op.type === 'remove') html += '<span class="diff-removed">' + safe + '</span>';
+      else html += '<span class="diff-added">' + safe + '</span>';
+    }
+    return html;
+  }
+
+  diffBox.innerHTML = renderDiff(data.original, data.revised);
+  textoFinal.value = data.revised || '';
+
+  function hasUnresolvedMarker(text) {
+    return text.includes('[[REVISAR:');
+  }
+
+  function refreshState() {
+    const text = textoFinal.value;
+    const blocked = hasUnresolvedMarker(text);
+    approveBtn.disabled = blocked;
+    unresolvedAlert.classList.toggle('show', blocked);
+    statusStamp.textContent = blocked ? 'Requer atenção' : 'Em revisão';
+    charCounterReview.textContent = text.length + ' caracteres';
+  }
+
+  textoFinal.addEventListener('input', refreshState);
+  refreshState();
+
+  restartLink.addEventListener('click', () => {
+    if (confirm('Isso vai descartar o texto revisado desta sessão. Deseja voltar ao formulário?')) {
+      sessionStorage.removeItem('casetrack_review');
+      window.location.href = 'form.html';
+    }
+  });
+
+  approveBtn.addEventListener('click', async () => {
+    if (hasUnresolvedMarker(textoFinal.value)) return;
+
+    approveBtn.disabled = true;
+    approveBtn.textContent = 'Enviando...';
+    statusMsg.style.color = 'var(--muted)';
+    statusMsg.textContent = 'Registrando aprovação...';
+
+    try {
+      const response = await fetch(API_BASE_URL + '/incidents/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          estudante: data.estudante,
+          turma: data.turma,
+          data: data.data,
+          responsavel: data.responsavel,
+          texto_final: textoFinal.value
+        })
+      });
+
+      if (response.status === 400) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.detail || 'O servidor recusou a aprovação — revise o texto e tente novamente.');
+      }
+      if (!response.ok) throw new Error('Resposta do servidor: ' + response.status);
+
+      const result = await response.json();
+
+      sessionStorage.setItem('casetrack_approval', JSON.stringify({
+        ticket: data.ticket || result.ticket || '—',
+        approved_at: result.approved_at || new Date().toISOString()
+      }));
+      sessionStorage.removeItem('casetrack_review');
+
+      window.location.href = 'success.html';
+
+    } catch (err) {
+      statusMsg.style.color = 'var(--danger)';
+      statusMsg.textContent = err.message;
+      approveBtn.disabled = false;
+      approveBtn.textContent = 'Aprovar e continuar →';
+    }
+  });
+</script>
+
+</body>
+</html>
