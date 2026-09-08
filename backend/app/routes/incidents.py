@@ -26,10 +26,8 @@ class OccurrenceResponse(BaseModel):
 
 
 class ApprovalRequest(BaseModel):
-    estudante: str
-    turma: str
-    data: str
-    responsavel: str | None = None
+    occurrence_date: str
+    location: str
     texto_final: str
 
 
@@ -90,16 +88,16 @@ async def approve_incident(
             detail="O texto ainda contém identificador(es) não resolvido(s). Corrija antes de aprovar."
         )
 
-    student_hash = hashlib.sha256((AUDIT_SALT + request.estudante).encode()).hexdigest()
+    texto_hash = hashlib.sha256((AUDIT_SALT + request.texto_final).encode()).hexdigest()
     employee_label = current_employee.get("nome") or current_employee.get("email") or "desconhecido"
     approved_at = datetime.now(timezone.utc).isoformat()
 
     logger.info(
-        f"Aprovação registrada — aluno_hash={student_hash} turma={request.turma} "
-        f"func={employee_label} em={approved_at}"
+        f"Aprovação registrada — hash_texto={texto_hash} local={request.location} "
+        f"data_ocorrencia={request.occurrence_date} func={employee_label} em={approved_at}"
     )
 
     return ApprovalResponse(
-        ticket=f"{request.turma}-{approved_at}",
+        ticket=f"{request.location}-{approved_at}",
         approved_at=approved_at
     )
