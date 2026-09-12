@@ -14,6 +14,7 @@ uniformes na área de Ocorrências):
 """
 
 import io
+import re
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
@@ -49,6 +50,51 @@ def _draw_frame(c):
 def _underline(c, x_start, x_end, y, width=0.5):
     c.setLineWidth(width)
     c.line(x_start, y, x_end, y)
+
+
+def _format_date_br(date_str: str) -> str:
+    """Converte 'AAAA-MM-DD' (formato do <input type=date>) para 'DD/MM/AAAA'.
+    Se o valor não bater com esse padrão, devolve o texto original sem alterar
+    — mais seguro do que lançar um erro e travar a geração do PDF inteiro."""
+    if not date_str:
+        return date_str
+    parts = date_str.split("-")
+    if len(parts) == 3 and all(p.isdigit() for p in parts):
+        year, month, day = parts
+        return f"{day}/{month}/{year}"
+    return date_str
+
+
+def _strip_redundant_date_section(text: str) -> str:
+    """Remove a seção '**N. Data**' do corpo de Ocorrências (já mostrada no
+    cabeçalho da ficha) e renumera as seções seguintes para não deixar buraco
+    na sequência. Isto afeta só o texto desenhado no PDF — o texto_final
+    original (usado no log de auditoria e na tela de revisão) não é alterado
+    aqui, pois esta função só processa uma cópia local do texto."""
+    section_pattern = re.compile(
+        r"\*\*(\d+)\.\s*([^\n*]+?)\*\*\n(.*?)(?=\n\*\*\d+\.|\Z)",
+        re.DOTALL,
+    )
+    matches = section_pattern.findall(text)
+    if not matches:
+        return text  # texto não segue o formato numerado esperado — devolve como está
+
+    filtered = [
+        (label, content) for (_, label, content) in matches
+        if label.strip().lower() != "data"
+    ]
+
+    header_match = re.match(r"^(.*?)(?=\*\*\d+\.)", text, re.DOTALL)
+    header_text = header_match.group(1).strip() if header_match else ""
+
+    rebuilt_sections = []
+    for i, (label, content) in enumerate(filtered, start=1):
+        rebuilt_sections.append(f"**{i}. {label.strip()}**\n{content.strip()}")
+
+    rebuilt = "\n\n".join(rebuilt_sections)
+    if header_text:
+        rebuilt = header_text + "\n\n" + rebuilt
+    return rebuilt
 
 
 def generate_occurrence_pdf(
@@ -106,7 +152,7 @@ def generate_occurrence_pdf(
     x += c.stringWidth("DATA: ", FONT_LABEL, SIZE_LABEL)
     date_value_x = x
     c.setFont(FONT_BODY, SIZE_BODY)
-    c.drawString(date_value_x, y, occurrence_date or "")
+    c.drawString(date_value_x, y, _format_date_br(occurrence_date) or "")
     _underline(c, date_value_x, PAGE_WIDTH - MARGIN, y - 1.5 * mm)
 
     y -= 10 * mm
@@ -133,7 +179,8 @@ def generate_occurrence_pdf(
     c.setFont(FONT_BODY, SIZE_BODY)
     draw_ruled_grid(y)
 
-    paragraphs = occurrence_text.split("\n")
+    occurrence_text_for_print = _strip_redundant_date_section(occurrence_text)
+    paragraphs = occurrence_text_for_print.split("\n")
     for paragraph in paragraphs:
         if not paragraph.strip():
             y -= line_height
