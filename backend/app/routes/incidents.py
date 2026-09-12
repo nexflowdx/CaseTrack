@@ -5,9 +5,13 @@ from app.schemas.occurrence import OccurrenceRequest
 from app.services.anonymization import anonymize, deanonymize, UnresolvedIdentifierError
 from app.services.llm import revise_text
 from app.services.auth import get_current_employee
+from app.services.pdf_generator import generate_occurrence_pdf
+from app.services.email_sender import send_occurrence_email, smtp_is_configured
+from app.services.classroom_extractor import suggest_classroom
 import re
 import hashlib
 import os
+import base64
 from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
@@ -34,6 +38,29 @@ class ApprovalRequest(BaseModel):
 class ApprovalResponse(BaseModel):
     ticket: str
     approved_at: str
+
+
+class ClassroomSuggestionRequest(BaseModel):
+    students_involved: str
+
+
+class ClassroomSuggestionResponse(BaseModel):
+    suggested_classroom: str | None = None
+
+
+class DocumentRequest(BaseModel):
+    student_name: str
+    classroom: str
+    occurrence_date: str
+    texto_final: str
+    responsible_staff: str
+    ticket: str
+
+
+class DocumentResponse(BaseModel):
+    pdf_base64: str
+    email_sent: bool
+    email_error: str | None = None
 
 
 @router.post("/review", response_model=OccurrenceResponse)
@@ -100,4 +127,50 @@ async def approve_incident(
     return ApprovalResponse(
         ticket=f"{request.location}-{approved_at}",
         approved_at=approved_at
+    )
+
+
+@router.post("/suggest-classroom", response_model=ClassroomSuggestionResponse)
+async def suggest_classroom_endpoint(
+    request: ClassroomSuggestionRequest,
+    current_employee: dict = Depends(get_current_employee)
+):
+    return ClassroomSuggestionResponse(suggested_classroom=suggest_classroom(request.students_involved))
+
+
+@router.post("/generate-document", response_model=DocumentResponse)
+async def generate_document(
+    request: DocumentRequest,
+    current_employee: dict = Depends(get_current_employee)
+):
+    pdf_bytes = generate_occurrence_pdf(
+        student_name=request.student_name,
+        classroom=request.classroom,
+        occurrence_date=request.occurrence_date,
+        occurrence_text=request.texto_final,
+        responsible_staff=request.responsible_staff,
+    )
+
+    email_sent = False
+    email_error = None
+
+    if smtp_is_configured():
+        try:
+            send_occurrence_email(
+                ticket=request.ticket,
+                student_name=request.student_name,
+                pdf_bytes=pdf_bytes,
+            )
+            email_sent = True
+        except Exception as e:
+            logger.error(f"Falha ao enviar e-mail da ocorrência {request.ticket}: {e}")
+            email_error = str(e)
+    else:
+        email_error = "SMTP não configurado — e-mail não enviado. O PDF foi gerado normalmente."
+        logger.warning(f"Geração de PDF sem envio de e-mail (SMTP não configurado) — ticket={request.ticket}")
+
+    return DocumentResponse(
+        pdf_base64=base64.b64encode(pdf_bytes).decode("ascii"),
+        email_sent=email_sent,
+        email_error=email_error,
     )

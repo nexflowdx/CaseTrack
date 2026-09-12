@@ -549,10 +549,8 @@
           'Authorization': 'Bearer ' + token
         },
         body: JSON.stringify({
-          estudante: data.estudante,
-          turma: data.turma,
-          data: data.data,
-          responsavel: data.responsavel,
+          occurrence_date: data.occurrence_date,
+          location: data.location,
           texto_final: textoFinal.value
         })
       });
@@ -565,13 +563,17 @@
 
       const result = await response.json();
 
-      sessionStorage.setItem('casetrack_approval', JSON.stringify({
+      sessionStorage.setItem('casetrack_print', JSON.stringify({
         ticket: data.ticket || result.ticket || '—',
-        approved_at: result.approved_at || new Date().toISOString()
+        approved_at: result.approved_at || new Date().toISOString(),
+        student_name: data.students_involved,
+        occurrence_date: data.occurrence_date,
+        responsible_staff: data.responsible_staff,
+        texto_final: textoFinal.value
       }));
       sessionStorage.removeItem('casetrack_review');
 
-      window.location.href = 'success.html';
+      window.location.href = 'print-confirm.html';
 
     } catch (err) {
       statusMsg.style.color = 'var(--danger)';

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaseTrack — Confirmar Impressão</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+  :root {
+    --paper: #e9e5d8;
+    --paper-card: #f8f5ec;
+    --ink: #23303d;
+    --ink-soft: #4a5568;
+    --kraft: #b98d53;
+    --stamp: #2f5d50;
+    --line: #c7c0ae;
+    --muted: #77705f;
+    --focus: #2f5d50;
+    --danger: #9c3b2e;
+    --warn: #a9772f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom, transparent, transparent 27px, rgba(35, 48, 61, 0.045) 28px
+    );
+    font-family: 'IBM Plex Sans', sans-serif;
+    color: var(--ink);
+    padding: 2.5rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.75rem;
+  }
+
+  .brand strong { color: var(--ink); font-weight: 600; }
+
+  nav.trail {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 2.5rem;
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .trail-step { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+
+  .trail-step .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: var(--paper-card);
+    flex-shrink: 0;
+  }
+
+  .trail-step.active .num { background: var(--ink); border-color: var(--ink); color: var(--paper-card); }
+  .trail-step .label { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .trail-step.active .label { color: var(--ink); font-weight: 500; }
+  .trail-line { flex: 1; height: 1px; background: var(--line); margin: 0 0.5rem; }
+
+  main { width: 100%; max-width: 520px; position: relative; }
+
+  .card {
+    position: relative;
+    background: var(--paper-card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2.25rem 2rem 2rem;
+    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+  }
+
+  .tab {
+    position: absolute;
+    top: -18px;
+    left: 28px;
+    background: var(--kraft);
+    color: #fff9ee;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px 5px;
+    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+    border-radius: 2px 2px 0 0;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+    color: var(--ink);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 1.5rem;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 1.25rem; }
+
+  label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-bottom: 0.4rem;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.6rem 0.7rem;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--focus);
+    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.14);
+  }
+
+  .helper {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .helper.suggestion-found { color: var(--focus); }
+  .helper.suggestion-missing { color: var(--warn); }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  button.submit {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #fff9ee;
+    background: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  button.submit:hover { background: #1a2530; }
+  button.submit:active { transform: scale(0.98); }
+  button.submit:disabled { background: #a9a595; cursor: not-allowed; }
+
+  button.secondary {
+    width: 100%;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 0.7rem 1.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: none;
+  }
+
+  button.secondary.show { display: block; }
+
+  .status-msg {
+    font-size: 12.5px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 0.5rem;
+    line-height: 1.6;
+  }
+
+  .status-msg.error { color: var(--danger); }
+  .status-msg.warn { color: var(--warn); }
+  .status-msg.success { color: var(--focus); }
+
+  @media (max-width: 420px) {
+    .card { padding: 2rem 1.25rem 1.5rem; }
+    body { padding: 1.75rem 0.9rem 3rem; }
+    nav.trail { flex-wrap: wrap; row-gap: 8px; }
+    .trail-line { display: none; }
+  }
+
+</style>
+</head>
+<body>
+
+  <p class="brand"><strong>CaseTrack</strong> · EMEF Assad Abdala</p>
+
+  <nav class="trail" aria-label="Etapas do fluxo de ocorrência">
+    <div class="trail-step"><span class="num">01</span><span class="label">Login</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step"><span class="num">02</span><span class="label">Formulário</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step"><span class="num">03</span><span class="label">Revisão</span></div>
+    <div class="trail-line"></div>
+    <div class="trail-step active"><span class="num">04</span><span class="label">Impressão &amp; e-mail</span></div>
+  </nav>
+
+  <main>
+    <div class="card">
+      <span class="tab">Confirmar antes de imprimir</span>
+      <h1>Confirme a turma antes de gerar a ficha</h1>
+      <p class="subtitle">
+        O sistema tentou identificar a turma automaticamente a partir do texto —
+        confira e corrija se necessário antes de gerar o PDF final.
+      </p>
+
+      <div class="field">
+        <label for="classroomInput">Turma</label>
+        <input type="text" id="classroomInput" placeholder="Ex: 3A" autocomplete="off">
+        <p class="helper" id="classroomHelper">Verificando sugestão automática...</p>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="submit" id="generateBtn">Gerar ficha em PDF →</button>
+        <a href="#" class="secondary" id="downloadLink" download>Baixar PDF novamente</a>
+        <button type="button" class="secondary" id="continueBtn">Concluir →</button>
+        <p class="status-msg" id="statusMsg"></p>
+      </div>
+    </div>
+  </main>
+
+<script>
+  const API_BASE_URL = 'https://nexflow-casetrack-backend.tlwieg.easypanel.host';
+
+  const authToken = sessionStorage.getItem('casetrack_token');
+  if (!authToken) {
+    window.location.href = 'login.html';
+    throw new Error('Sem token — redirecionando.');
+  }
+
+  const raw = sessionStorage.getItem('casetrack_print');
+  if (!raw) {
+    window.location.href = 'form.html';
+    throw new Error('Nada para imprimir nesta sessão — redirecionando.');
+  }
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (err) {
+    sessionStorage.removeItem('casetrack_print');
+    window.location.href = 'form.html';
+    throw err;
+  }
+
+  const classroomInput = document.getElementById('classroomInput');
+  const classroomHelper = document.getElementById('classroomHelper');
+  const generateBtn = document.getElementById('generateBtn');
+  const downloadLink = document.getElementById('downloadLink');
+  const continueBtn = document.getElementById('continueBtn');
+  const statusMsg = document.getElementById('statusMsg');
+
+  // Busca sugestão automática de turma assim que a tela carrega.
+  (async () => {
+    try {
+      const response = await fetch(API_BASE_URL + '/incidents/suggest-classroom', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + authToken
+        },
+        body: JSON.stringify({ students_involved: data.student_name || '' })
+      });
+
+      if (!response.ok) throw new Error('status ' + response.status);
+
+      const result = await response.json();
+      if (result.suggested_classroom) {
+        classroomInput.value = result.suggested_classroom;
+        classroomHelper.textContent = 'Sugestão automática — confira antes de continuar.';
+        classroomHelper.className = 'helper suggestion-found';
+      } else {
+        classroomHelper.textContent = 'Não foi possível sugerir automaticamente. Preencha manualmente.';
+        classroomHelper.className = 'helper suggestion-missing';
+      }
+    } catch (err) {
+      classroomHelper.textContent = 'Não foi possível buscar sugestão automática. Preencha manualmente.';
+      classroomHelper.className = 'helper suggestion-missing';
+    }
+  })();
+
+  generateBtn.addEventListener('click', async () => {
+    const classroom = classroomInput.value.trim();
+    if (!classroom) {
+      statusMsg.textContent = 'Informe a turma antes de gerar a ficha.';
+      statusMsg.className = 'status-msg error';
+      classroomInput.focus();
+      return;
+    }
+
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'Gerando...';
+    statusMsg.textContent = 'Gerando o PDF...';
+    statusMsg.className = 'status-msg';
+
+    try {
+      const response = await fetch(API_BASE_URL + '/incidents/generate-document', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + authToken
+        },
+        body: JSON.stringify({
+          student_name: data.student_name,
+          classroom: classroom,
+          occurrence_date: data.occurrence_date,
+          texto_final: data.texto_final,
+          responsible_staff: data.responsible_staff,
+          ticket: data.ticket
+        })
+      });
+
+      if (response.status === 401) {
+        sessionStorage.removeItem('casetrack_token');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (!response.ok) throw new Error('Resposta do servidor: ' + response.status);
+
+      const result = await response.json();
+
+      // Converte o PDF (base64) num Blob para permitir download direto no navegador.
+      const byteCharacters = atob(result.pdf_base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+
+      downloadLink.href = blobUrl;
+      downloadLink.download = 'ocorrencia_' + (data.ticket || 'ficha') + '.pdf';
+      downloadLink.classList.add('show');
+
+      // Dispara o download automaticamente também, além de deixar o link disponível.
+      const autoLink = document.createElement('a');
+      autoLink.href = blobUrl;
+      autoLink.download = downloadLink.download;
+      document.body.appendChild(autoLink);
+      autoLink.click();
+      document.body.removeChild(autoLink);
+
+      if (result.email_sent) {
+        statusMsg.textContent = 'PDF gerado e e-mail enviado com sucesso aos destinatários.';
+        statusMsg.className = 'status-msg success';
+      } else {
+        statusMsg.textContent = 'PDF gerado. E-mail não enviado: ' + (result.email_error || 'motivo desconhecido');
+        statusMsg.className = 'status-msg warn';
+      }
+
+      generateBtn.textContent = 'Gerar novamente';
+      generateBtn.disabled = false;
+      continueBtn.classList.add('show');
+
+      sessionStorage.setItem('casetrack_approval', JSON.stringify({
+        ticket: data.ticket,
+        approved_at: data.approved_at
+      }));
+
+    } catch (err) {
+      statusMsg.textContent = 'Erro ao gerar a ficha: ' + err.message;
+      statusMsg.className = 'status-msg error';
+      generateBtn.disabled = false;
+      generateBtn.textContent = 'Gerar ficha em PDF →';
+    }
+  });
+
+  continueBtn.addEventListener('click', () => {
+    sessionStorage.removeItem('casetrack_print');
+    window.location.href = 'success.html';
+  });
+</script>
+
+</body>
+</html>

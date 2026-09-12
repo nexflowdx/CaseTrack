@@ -52,3 +52,5 @@ watchfiles==1.2.0
 weasel==1.0.0
 websockets==17.1
 wrapt==2.4.0
+pillow==12.3.0
+reportlab==5.0.1

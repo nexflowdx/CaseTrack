@@ -64,7 +64,7 @@
     align-items: center;
     gap: 0;
     margin-bottom: 2.5rem;
-    max-width: 640px;
+    max-width: 680px;
     width: 100%;
   }
 
@@ -116,7 +116,7 @@
 
   main {
     width: 100%;
-    max-width: 640px;
+    max-width: 680px;
     position: relative;
   }
 
@@ -226,14 +226,90 @@
     margin: 1.35rem 0 1.6rem;
   }
 
+  /* --- Toggle de modo --- */
+  .mode-field {
+    margin-bottom: 1.6rem;
+  }
+
+  .mode-toggle {
+    display: inline-flex;
+    background: #fffdf8;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .mode-toggle input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mode-toggle label {
+    margin: 0;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    user-select: none;
+  }
+
+  .mode-toggle input[type="radio"]:checked + label {
+    background: var(--ink);
+    color: var(--paper-card);
+  }
+
+  .mode-toggle input[type="radio"]:focus-visible + label {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .mode-helper {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 0.55rem;
+    line-height: 1.5;
+  }
+  /* --- fim toggle --- */
+
+  fieldset {
+    border: none;
+    padding: 0;
+    margin: 0 0 1.6rem;
+  }
+
+  fieldset legend {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--kraft-dark);
+    padding: 0 0 0.6rem;
+    width: 100%;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 1.1rem;
+  }
+
   .field {
     margin-bottom: 1.35rem;
+  }
+
+  .field:last-child {
+    margin-bottom: 0;
   }
 
   .field-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.1rem;
+  }
+
+  .field-row.three {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   label {
@@ -250,8 +326,17 @@
     margin-left: 2px;
   }
 
+  label .opt {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 11.5px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
   input[type="text"],
   input[type="date"],
+  input[type="time"],
   textarea {
     width: 100%;
     font-family: 'IBM Plex Sans', sans-serif;
@@ -277,9 +362,13 @@
   }
 
   textarea {
-    resize: none;
-    min-height: 130px;
+    resize: vertical;
+    min-height: 90px;
     line-height: 1.55;
+  }
+
+  textarea.tall {
+    min-height: 140px;
   }
 
   .helper {
@@ -333,7 +422,7 @@
 
   button.submit {
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 500;
     color: #fff9ee;
     background: var(--ink);
@@ -358,7 +447,7 @@
   }
 
   footer.privacy-note {
-    max-width: 640px;
+    max-width: 680px;
     width: 100%;
     margin-top: 1.75rem;
     font-size: 12px;
@@ -372,7 +461,7 @@
   }
 
   @media (max-width: 640px) {
-    .field-row { grid-template-columns: 1fr; gap: 1.35rem; }
+    .field-row, .field-row.three { grid-template-columns: 1fr; gap: 1.35rem; }
     .ficha { padding: 2rem 1.25rem 1.5rem; }
     h1 { font-size: 21px; }
     .stamp { width: 68px; height: 68px; font-size: 10px; top: 20px; right: 18px; }
@@ -440,38 +529,98 @@
 
       <hr class="perforation">
 
-      <div class="field">
-        <label for="estudante">Estudante<span class="req">*</span></label>
-        <input type="text" id="estudante" name="estudante" placeholder="Nome do estudante" required autocomplete="off">
+      <div class="mode-field">
+        <label>Tipo de revisão<span class="req">*</span></label>
+        <div class="mode-toggle" role="radiogroup" aria-label="Tipo de revisão">
+          <input type="radio" id="modeSimples" name="mode" value="revisao_simples" checked>
+          <label for="modeSimples">Padrão</label>
+          <input type="radio" id="modeFormal" name="mode" value="formal_juridico">
+          <label for="modeFormal">Formal jurídico</label>
+        </div>
+        <p class="mode-helper" id="modeHelper">A IA ajusta a redação mantendo tom natural, em primeira pessoa.</p>
       </div>
 
-      <div class="field field-row">
-        <div>
-          <label for="turma">Turma<span class="req">*</span></label>
-          <input type="text" id="turma" name="turma" placeholder="Ex: 4B" required autocomplete="off">
-        </div>
-        <div>
-          <label for="data">Data<span class="req">*</span></label>
-          <input type="date" id="data" name="data" required>
-        </div>
-      </div>
+      <fieldset>
+        <legend>1–3 · Quando e onde</legend>
 
-      <div class="field">
-        <label for="responsavel">Responsável informado</label>
-        <input type="text" id="responsavel" name="responsavel" placeholder="Nome do responsável, se aplicável" autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="relato">Relato do ocorrido<span class="req">*</span></label>
-        <textarea id="relato" name="relato" placeholder="Descreva o que aconteceu, com o máximo de detalhe que conseguir. A revisão de redação acontece na próxima etapa." required></textarea>
-        <div class="counter-row">
-          <span class="space-warning" id="spaceWarning">
-            <span>⚠</span> Texto longo — pode não caber inteiro na ficha impressa (Fase 8 avalia isso antes da geração do PDF).
-          </span>
-          <span class="counter" id="charCounter">0 / 900 caracteres</span>
+        <div class="field field-row three">
+          <div>
+            <label for="occurrence_date">Data<span class="req">*</span></label>
+            <input type="date" id="occurrence_date" name="occurrence_date" required>
+          </div>
+          <div>
+            <label for="occurrence_time">Horário<span class="req">*</span></label>
+            <input type="time" id="occurrence_time" name="occurrence_time" required>
+          </div>
+          <div>
+            <label for="location">Local<span class="req">*</span></label>
+            <input type="text" id="location" name="location" placeholder="Ex: pátio, sala 4B" required autocomplete="off">
+          </div>
         </div>
-        <p class="helper">Não se preocupe em redigir com perfeição — o texto passa por uma revisão de redação (com nomes protegidos) antes de você aprovar a versão final.</p>
-      </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>4–5 · Envolvidos</legend>
+
+        <div class="field">
+          <label for="students_involved">Estudante(s) envolvido(s)<span class="req">*</span></label>
+          <textarea id="students_involved" name="students_involved" placeholder="Nomes dos estudantes envolvidos" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="staff_involved">Servidores envolvidos/presentes<span class="req">*</span></label>
+          <textarea id="staff_involved" name="staff_involved" placeholder="Nomes de professores, inspetores ou outros servidores presentes" required></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>6–8 · O que aconteceu</legend>
+
+        <div class="field">
+          <label for="facts_description">Descrição objetiva e cronológica dos fatos<span class="req">*</span></label>
+          <textarea id="facts_description" class="tall" name="facts_description" placeholder="Descreva o que aconteceu, com o máximo de detalhe que conseguir. A revisão de redação acontece na próxima etapa." required></textarea>
+          <div class="counter-row">
+            <span class="space-warning" id="spaceWarning">
+              <span>⚠</span> Texto longo — pode não caber inteiro na ficha impressa (Fase 8 avalia isso antes da geração do PDF).
+            </span>
+            <span class="counter" id="charCounter">0 / 900 caracteres</span>
+          </div>
+          <p class="helper">Não se preocupe em redigir com perfeição — o texto passa por uma revisão de redação (com nomes protegidos) antes de você aprovar a versão final.</p>
+        </div>
+
+        <div class="field">
+          <label for="ate_actions">Condutas adotadas pelo ATE<span class="req">*</span></label>
+          <textarea id="ate_actions" name="ate_actions" placeholder="O que você fez diante da situação" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="communications_made">Comunicações realizadas<span class="req">*</span></label>
+          <textarea id="communications_made" name="communications_made" placeholder="Quem foi comunicado (família, coordenação, conselho tutelar, etc.)" required></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>9–10 · Encerramento <span style="text-transform:none; letter-spacing:0; font-weight:400;">(opcional)</span></legend>
+
+        <div class="field">
+          <label for="resolution">Resultado/encerramento da ocorrência <span class="opt">(opcional)</span></label>
+          <textarea id="resolution" name="resolution" placeholder="Como a situação foi encerrada, se já foi"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="notes">Observações relevantes <span class="opt">(opcional)</span></label>
+          <textarea id="notes" name="notes" placeholder="Qualquer informação adicional relevante"></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>11 · Responsável pelo registro</legend>
+
+        <div class="field">
+          <label for="responsible_staff">Identificação do servidor responsável<span class="req">*</span></label>
+          <input type="text" id="responsible_staff" name="responsible_staff" placeholder="Seu nome" required autocomplete="off">
+        </div>
+      </fieldset>
 
       <div class="actions">
         <span class="status-msg" id="statusMsg"></span>
@@ -498,7 +647,7 @@
   const staffName = sessionStorage.getItem('casetrack_staff_name');
 
   const form = document.getElementById('ocorrenciaForm');
-  const relato = document.getElementById('relato');
+  const factsField = document.getElementById('facts_description');
   const counter = document.getElementById('charCounter');
   const spaceWarning = document.getElementById('spaceWarning');
   const submitBtn = document.getElementById('submitBtn');
@@ -506,10 +655,26 @@
   const statusStamp = document.getElementById('statusStamp');
   const ticketNumber = document.getElementById('ticketNumber');
   const reviewerLine = document.getElementById('reviewerLine');
+  const modeHelper = document.getElementById('modeHelper');
+  const responsibleStaffInput = document.getElementById('responsible_staff');
 
   const CHAR_LIMIT = 900;
 
   reviewerLine.textContent = staffName ? ('Registrando como ' + staffName) : '';
+  if (staffName) {
+    responsibleStaffInput.value = staffName;
+  }
+
+  const MODE_HELPER_TEXT = {
+    revisao_simples: 'A IA ajusta a redação mantendo tom natural, em primeira pessoa.',
+    formal_juridico: 'A IA reescreve com linguagem formal/institucional, adequada a processos administrativos.'
+  };
+
+  document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      modeHelper.textContent = MODE_HELPER_TEXT[radio.value] || '';
+    });
+  });
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -524,13 +689,8 @@
   const currentTicket = generateTicketPlaceholder();
   ticketNumber.textContent = currentTicket;
 
-  function autoResize() {
-    relato.style.height = 'auto';
-    relato.style.height = (relato.scrollHeight) + 'px';
-  }
-
   function updateCounter() {
-    const len = relato.value.length;
+    const len = factsField.value.length;
     counter.textContent = len + ' / ' + CHAR_LIMIT + ' caracteres';
     counter.classList.remove('warn', 'danger');
     spaceWarning.classList.remove('show');
@@ -543,10 +703,7 @@
     }
   }
 
-  relato.addEventListener('input', () => {
-    autoResize();
-    updateCounter();
-  });
+  factsField.addEventListener('input', updateCounter);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -558,19 +715,22 @@
       return;
     }
 
-    const estudante = document.getElementById('estudante').value;
-    const turma = document.getElementById('turma').value;
-    const dataOcorrencia = document.getElementById('data').value;
-    const responsavel = document.getElementById('responsavel').value;
-    const relatoTexto = relato.value;
-
-    const payload = {
-      estudante: estudante,
-      turma: turma,
-      data: dataOcorrencia,
-      responsavel: responsavel,
-      relato: relatoTexto
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const fields = {
+      occurrence_date: document.getElementById('occurrence_date').value,
+      occurrence_time: document.getElementById('occurrence_time').value,
+      location: document.getElementById('location').value,
+      students_involved: document.getElementById('students_involved').value,
+      staff_involved: document.getElementById('staff_involved').value,
+      facts_description: factsField.value,
+      ate_actions: document.getElementById('ate_actions').value,
+      communications_made: document.getElementById('communications_made').value,
+      resolution: document.getElementById('resolution').value || null,
+      notes: document.getElementById('notes').value || null,
+      responsible_staff: responsibleStaffInput.value
     };
+
+    const payload = Object.assign({ mode: mode }, fields);
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
@@ -599,19 +759,17 @@
 
       const responseData = await response.json();
 
-      // Guarda tudo que a tela de revisão precisa: dados originais do formulário
-      // (para o diff e para reenviar em /incidents/approve) + resposta da IA.
-      const reviewPayload = {
+      // Guarda tudo que a tela de revisão precisa: campos originais do formulário
+      // (para reenviar em /incidents/approve) + resposta da IA.
+      const reviewPayload = Object.assign({
         ticket: currentTicket,
-        estudante: estudante,
-        turma: turma,
-        data: dataOcorrencia,
-        responsavel: responsavel,
-        original: relatoTexto,
+        mode: mode,
+        original: fields.facts_description,
         revised: responseData.revised_text,
         has_unresolved_reference: responseData.has_unresolved_reference,
         warning: responseData.warning
-      };
+      }, fields);
+
       sessionStorage.setItem('casetrack_review', JSON.stringify(reviewPayload));
 
       statusStamp.textContent = 'Em revisão';
