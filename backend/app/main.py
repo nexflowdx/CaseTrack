@@ -7,7 +7,7 @@ app = FastAPI(title="CaseTrack API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5500"],
+        allow_origins=["http://localhost:5500", "https://nexflow-casetrack-frontend.tlwieg.easypanel.host"],
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
