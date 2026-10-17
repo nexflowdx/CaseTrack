@@ -55,10 +55,6 @@ CaseTrack/
 
 Detalhes completos de cada decisão, incluindo o que foi descartado e por quê, estão em [`docs/CaseTrack-Roadmap.md`](docs/CaseTrack-Roadmap.md).
 
-## Status
-
-Em desenvolvimento — Fase 1 (estrutura do repositório) concluída. Acompanhamento de fase em `docs/`.
-
 ---
 
 *Projeto mantido por Eduardo Gonçalves Jr. — Nexflow DX.*
