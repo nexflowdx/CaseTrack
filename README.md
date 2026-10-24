@@ -9,7 +9,7 @@ Ajuda o funcionário a redigir, revisar e imprimir fichas de ocorrência escolar
 ## Como funciona (visão geral)
 
 ```text
-Funcionário preenche o formulário (Lovable/frontend)
+Funcionário preenche o formulário (Javascript/frontend)
         ↓
 Backend (FastAPI) anonimiza nomes automaticamente (spaCy, local, sem lista fixa)
         ↓
