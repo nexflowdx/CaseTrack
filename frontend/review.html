@@ -7,21 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<script src="config.js"></script>
+<script src="theme.js"></script>
 <style>
 
   :root {
-    --paper: #e9e5d8;
-    --paper-card: #f8f5ec;
-    --ink: #23303d;
-    --ink-soft: #4a5568;
-    --kraft: #b98d53;
-    --kraft-dark: #8f6a3c;
-    --stamp: #9c3b2e;
-    --line: #c7c0ae;
-    --muted: #77705f;
-    --focus: #2f5d50;
-    --danger: #9c3b2e;
-    --warn: #a9772f;
+    --stamp: var(--stamp-red);
     --radius-card: 4px;
   }
 
@@ -35,7 +27,7 @@
       to bottom,
       transparent,
       transparent 27px,
-      rgba(35, 48, 61, 0.045) 28px
+      var(--rule) 28px
     );
     font-family: 'IBM Plex Sans', sans-serif;
     color: var(--ink);
@@ -101,7 +93,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-card);
     padding: 2.25rem 2rem 2rem;
-    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+    box-shadow: 0 1px 0 var(--shadow-card);
   }
 
   .tab {
@@ -109,7 +101,7 @@
     top: -18px;
     left: 28px;
     background: var(--kraft);
-    color: #fff9ee;
+    color: var(--on-kraft);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10.5px;
     letter-spacing: 0.1em;
@@ -202,7 +194,7 @@
   label .req { color: var(--stamp); margin-left: 2px; }
 
   .diff-box {
-    background: #fffdf8;
+    background: var(--field-bg);
     border: 1px solid var(--line);
     border-radius: 3px;
     padding: 0.9rem 1rem;
@@ -215,15 +207,15 @@
 
   .diff-added {
     color: var(--focus);
-    background: rgba(47, 93, 80, 0.1);
+    background: var(--ok-bg);
     text-decoration: underline;
-    text-decoration-color: rgba(47, 93, 80, 0.5);
+    text-decoration-color: var(--ok-line);
     border-radius: 2px;
   }
 
   .diff-removed {
     color: var(--danger);
-    background: rgba(156, 59, 46, 0.08);
+    background: var(--err-bg);
     text-decoration: line-through;
     border-radius: 2px;
   }
@@ -235,7 +227,7 @@
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 16px;
     color: var(--ink);
-    background: #fffdf8;
+    background: var(--field-bg);
     border: 1px solid var(--line);
     border-radius: 3px;
     padding: 0.6rem 0.7rem;
@@ -248,7 +240,7 @@
   textarea:focus {
     outline: none;
     border-color: var(--focus);
-    box-shadow: 0 0 0 3px rgba(47, 93, 80, 0.14);
+    box-shadow: 0 0 0 3px var(--focus-ring);
   }
 
   .counter-row { display: flex; justify-content: flex-end; margin-top: 0.5rem; }
@@ -257,7 +249,7 @@
 
   .alert-box {
     display: none;
-    background: rgba(156, 59, 46, 0.08);
+    background: var(--err-bg);
     border: 1px solid var(--danger);
     border-radius: 3px;
     padding: 0.85rem 1rem;
@@ -271,7 +263,7 @@
 
   .alert-box code {
     font-family: 'IBM Plex Mono', monospace;
-    background: rgba(35, 48, 61, 0.08);
+    background: var(--code-bg);
     padding: 1px 5px;
     border-radius: 2px;
     font-size: 12px;
@@ -293,7 +285,7 @@
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
-    color: #fff9ee;
+    color: var(--on-ink);
     background: var(--ink);
     border: none;
     border-radius: 3px;
@@ -302,9 +294,9 @@
     transition: transform 0.1s ease, background 0.15s ease;
   }
 
-  button.submit:hover:not(:disabled) { background: #1a2530; }
+  button.submit:hover:not(:disabled) { background: var(--btn-hover); }
   button.submit:active:not(:disabled) { transform: scale(0.98); }
-  button.submit:disabled { background: #a9a595; cursor: not-allowed; }
+  button.submit:disabled { background: var(--btn-disabled); cursor: not-allowed; }
 
   .restart-link {
     display: inline-block;
@@ -414,7 +406,7 @@
 
 <script>
   // URL base do backend do CaseTrack (produção). Ajustar aqui caso o domínio mude.
-  const API_BASE_URL = 'https://nexflow-casetrack-backend.tlwieg.easypanel.host';
+  const API_BASE_URL = CASETRACK_CONFIG.backendUrl;
 
   const token = sessionStorage.getItem('casetrack_token');
   if (!token) {
