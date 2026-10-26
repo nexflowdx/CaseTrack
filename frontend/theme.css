@@ -1,0 +1,110 @@
+/* Tema claro/escuro do CaseTrack.
+   Claro = visual original (padrão). Escuro ativado por <html data-theme="dark">.
+   Cada página mantém localmente layout, tamanhos e o --stamp próprio
+   (--stamp-red ou --stamp-green). */
+
+:root {
+  color-scheme: only light;
+
+  --paper: #e9e5d8;
+  --paper-card: #f8f5ec;
+  --ink: #23303d;
+  --ink-soft: #4a5568;
+  --kraft: #b98d53;
+  --kraft-dark: #8f6a3c;
+  --line: #c7c0ae;
+  --muted: #77705f;
+  --focus: #2f5d50;
+  --danger: #9c3b2e;
+  --warn: #a9772f;
+
+  --stamp-red: #9c3b2e;
+  --stamp-green: #2f5d50;
+
+  --on-kraft: #fff9ee;
+  --on-ink: #fff9ee;
+  --field-bg: #fffdf8;
+  --btn-hover: #1a2530;
+  --btn-disabled: #a9a595;
+  --placeholder: #a5a08f;
+
+  --rule: rgba(35, 48, 61, 0.045);
+  --shadow-card: rgba(35, 48, 61, 0.03);
+  --code-bg: rgba(35, 48, 61, 0.08);
+  --focus-ring: rgba(47, 93, 80, 0.14);
+  --ok-bg: rgba(47, 93, 80, 0.1);
+  --ok-line: rgba(47, 93, 80, 0.5);
+  --err-bg: rgba(156, 59, 46, 0.08);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #161b22;
+  --paper-card: #1f262f;
+  --ink: #e8e4d8;
+  --ink-soft: #b7bfca;
+  --kraft: #8c6a3a;
+  --kraft-dark: #c49a5f;
+  --line: #3a4553;
+  --muted: #9b9686;
+  --focus: #6fb59f;
+  --danger: #e58475;
+  --warn: #d9a352;
+
+  --stamp-red: #e58475;
+  --stamp-green: #6fb59f;
+
+  --on-kraft: #fff9ee;
+  --on-ink: #161b22;
+  --field-bg: #151a20;
+  --btn-hover: #ffffff;
+  --btn-disabled: #7b8594;
+  --placeholder: #808a98;
+
+  --rule: rgba(232, 228, 216, 0.045);
+  --shadow-card: rgba(0, 0, 0, 0.3);
+  --code-bg: rgba(232, 228, 216, 0.12);
+  --focus-ring: rgba(111, 181, 159, 0.3);
+  --ok-bg: rgba(111, 181, 159, 0.16);
+  --ok-line: rgba(111, 181, 159, 0.6);
+  --err-bg: rgba(229, 132, 117, 0.14);
+}
+
+/* Botão de alternância (injetado por theme.js) */
+/* Telas estreitas: fica no fluxo, no topo e à direita, sem cobrir a marca
+   nem a trilha de etapas. Em telas largas (>= 900px) flutua no canto,
+   onde não há conteúdo (as páginas têm no máximo 680px de largura). */
+.theme-toggle {
+  position: static;
+  align-self: flex-end;
+  flex-shrink: 0;
+  margin: -0.5rem 0 0.75rem;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.theme-toggle:hover { border-color: var(--focus); }
+.theme-toggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+@media (min-width: 900px) {
+  .theme-toggle {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    margin: 0;
+  }
+}
+
+@media print { .theme-toggle { display: none; } }

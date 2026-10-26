@@ -7,18 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<script src="config.js"></script>
+<script src="theme.js"></script>
 <style>
 
   :root {
-    --paper: #e9e5d8;
-    --paper-card: #f8f5ec;
-    --ink: #23303d;
-    --ink-soft: #4a5568;
-    --kraft: #b98d53;
-    --stamp: #2f5d50;
-    --line: #c7c0ae;
-    --muted: #77705f;
-    --focus: #2f5d50;
+    --stamp: var(--stamp-green);
   }
 
   * { box-sizing: border-box; }
@@ -28,7 +23,7 @@
     min-height: 100vh;
     background-color: var(--paper);
     background-image: repeating-linear-gradient(
-      to bottom, transparent, transparent 27px, rgba(35, 48, 61, 0.045) 28px
+      to bottom, transparent, transparent 27px, var(--rule) 28px
     );
     font-family: 'IBM Plex Sans', sans-serif;
     color: var(--ink);
@@ -88,7 +83,7 @@
     border: 1px solid var(--line);
     border-radius: 4px;
     padding: 2.5rem 2rem 2rem;
-    box-shadow: 0 1px 0 rgba(35,48,61,0.03);
+    box-shadow: 0 1px 0 var(--shadow-card);
     text-align: center;
   }
 
@@ -98,7 +93,7 @@
     left: 50%;
     transform: translateX(-50%);
     background: var(--kraft);
-    color: #fff9ee;
+    color: var(--on-kraft);
     font-family: 'IBM Plex Mono', monospace;
     font-size: 10.5px;
     letter-spacing: 0.1em;
@@ -141,7 +136,7 @@
   }
 
   .next-step-note {
-    background: #fffdf8;
+    background: var(--field-bg);
     border: 1px solid var(--line);
     border-radius: 3px;
     padding: 0.9rem 1rem;
@@ -159,7 +154,7 @@
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 14.5px;
     font-weight: 500;
-    color: #fff9ee;
+    color: var(--on-ink);
     background: var(--ink);
     border: none;
     border-radius: 3px;
@@ -169,7 +164,7 @@
     transition: transform 0.1s ease, background 0.15s ease;
   }
 
-  button.submit:hover { background: #1a2530; }
+  button.submit:hover { background: var(--btn-hover); }
   button.submit:active { transform: scale(0.98); }
 
   @media (max-width: 420px) {
